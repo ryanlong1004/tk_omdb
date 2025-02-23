@@ -1,35 +1,32 @@
-import tempfile
+from fastapi import FastAPI, HTTPException
+from src.omdb import get_movie_by_title_year, get_movie_details_by_id, search_movies_by_title
 
-from fastapi import FastAPI, File, UploadFile
-from fastapi.responses import JSONResponse
-
-app = FastAPI(
-    title="Air Speech To Text API",
-    version="1.0",
-    contact={
-        "name": "Ryan Long",
-        "email": "rlong@wasabi.com",
-    },
-    docs_url="/",
-)
+app = FastAPI()
 
 
-@app.post("/transcribe/")
-async def transcribe(file: UploadFile = File(...)):
-    """
-    Transcribe the uploaded audio file.
+@app.get("/movie")
+def movie_by_title_year(title: str, year: str = ""):
+    if not title:
+        raise HTTPException(status_code=400, detail="Title is required")
+    movie_details = get_movie_by_title_year(title, year)
+    return movie_details
 
-    Args:
-        file (UploadFile): The uploaded audio file.
-        language (str): The language of the audio.
-        translate (bool): Whether to translate the audio.
 
-    Returns:
-        JSONResponse: The transcriptions of the audio.
-    """
-    contents = await file.read()
-    with tempfile.NamedTemporaryFile(delete=True) as temp_file:
-        temp_file.write(contents)
-        temp_file.flush()  # Ensure data is written to disk
-        # result = fx(temp_file.name)
-        return JSONResponse(content=None)
+@app.get("/movie/{imdb_id}")
+def movie_by_id(imdb_id: str):
+    movie_details = get_movie_details_by_id(imdb_id)
+    return movie_details
+
+
+@app.get("/search")
+def search_movies(title: str):
+    if not title:
+        raise HTTPException(status_code=400, detail="Title is required")
+    search_results = search_movies_by_title(title)
+    return search_results
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host="0.0.0.0", port=8000)
