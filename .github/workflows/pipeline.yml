@@ -42,7 +42,7 @@ jobs:
           python-version-file: ".python-version"
 
       - name: Install the project
-        run: uv sync --group cpu
+        run: uv sync
 
       - name: Run tests
         run: uv run pytest
