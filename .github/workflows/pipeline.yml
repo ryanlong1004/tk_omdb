@@ -80,8 +80,8 @@ jobs:
         with:
           images: ${{ env.REGISTRY}}/${{ env.IMAGE_NAME}}
           flavor: |
-            latest=false
-            prefix=cpu
+            latest=true
+            prefix=
             suffix=
           tags: |
             type=ref,event=pr,prefix=cpu_pr-
